@@ -37,13 +37,6 @@ android {
     versionCode 1
     versionName "0.5.0"
     consumerProguardFiles "consumer-rules.pro"
-    manifestPlaceholders = [
-      spotifyClientId: "unit-test-client-id",
-      spotifyRedirectUri: "unit-test://authenticate",
-      redirectHostName: "authenticate",
-      redirectPathPattern: ".*",
-      redirectSchemeName: "unit-test",
-    ]
   }
   lintOptions {
     abortOnError false
@@ -52,6 +45,22 @@ android {
     unitTests {
       includeAndroidResources = true
     }
+  }
+}
+
+// Library manifest placeholders resolve before the consuming app merges its own,
+// so values set on defaultConfig would override the app's real Spotify config.
+// Supply stand-ins only to the unit-test component so Robolectric can process
+// the manifest.
+androidComponents {
+  onVariants(selector().all()) { variant ->
+    variant.unitTest?.manifestPlaceholders?.putAll([
+      spotifyClientId: "unit-test-client-id",
+      spotifyRedirectUri: "unit-test://authenticate",
+      redirectHostName: "authenticate",
+      redirectPathPattern: ".*",
+      redirectSchemeName: "unit-test",
+    ])
   }
 }
 
